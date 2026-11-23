@@ -143,18 +143,41 @@ const out=e=>{if(e.pointerType!=='mouse')P.in=false};addEventListener('pointerup
 d.documentElement.addEventListener('pointerleave',()=>{P.in=false});d.addEventListener('visibilitychange',wk);
 new ResizeObserver(lay).observe(box);lay()})();
 
-(()=>{const se=d.querySelector('.se'),tr=se.querySelector('.se-track'),st=se.querySelector('.se-stage'),fr=se.querySelector('.se-frame'),md=se.querySelector('.se-media'),sc=se.querySelector('.se-scrim'),ti=se.querySelector('.se-title'),hi=se.querySelector('.se-hint'),ov=se.querySelector('.se-ov');
-const rm=matchMedia('(prefers-reduced-motion:reduce)').matches,cl=(v,a,b)=>v<a?a:v>b?b:v,ss=(a,b,x)=>{const k=cl((x-a)/(b-a),0,1);return k*k*(3-2*k)};
-let H=1,cur=0,tg=0,run=false,raf=0,SW=42;
-const ap=p=>{const e=ss(0,1,p),w=SW+(100-SW)*e,h=58+42*e,ix=Math.max(0,(100-w)/2),iy=Math.max(0,(100-h)/2);
-fr.style.clipPath=`inset(${iy}% ${ix}% ${iy}% ${ix}% round ${24*(1-e)}px)`;md.style.transform=`scale(${1.35-.35*e})`;sc.style.opacity=.7*e;
-const o=ss(.4,.88,p);ti.style.opacity=1-o;ti.style.transform=`translate3d(0,${-28*o}px,0) scale(${1+.06*o})`;
-const g=ss(0,.12,p);hi.style.opacity=1-g;hi.style.transform=`translate3d(0,${8*g}px,0)`;
-const n=ss(.68,1,p);ov.style.opacity=n;ov.style.transform=`translate3d(0,${18*(1-n)}px,0)`;ov.style.pointerEvents=n>.6?'auto':'none'};
-const rp=()=>cl(-tr.getBoundingClientRect().top/(H*1.2),0,1);
-const tick=()=>{cur+=(tg-cur)*(1-Math.exp(-1/6));if(Math.abs(tg-cur)<.0004){cur=tg;run=false}ap(cur);raf=run?requestAnimationFrame(tick):0};
-const onS=()=>{tg=rp();if(rm){cur=tg;ap(cur);return}if(!run){run=true;if(!raf)raf=requestAnimationFrame(tick)}};
-const meas=()=>{H=st.offsetHeight||innerHeight;SW=innerWidth<700?72:42;tg=cur=rp();ap(cur)};
-addEventListener('scroll',onS,{passive:true});new ResizeObserver(meas).observe(st);meas()})();
+
+
+(()=>{const a=d.querySelector('.acc'),ps=[...a.children],n=ps.length;
+const set=i=>ps.forEach((p,k)=>{p.classList.toggle('on',k===i);p.classList.toggle('bf',k<i);p.classList.toggle('af',k>i);p.setAttribute('aria-current',k===i?'true':'false')});
+ps.forEach((p,k)=>{p.addEventListener('mouseenter',()=>{if(matchMedia('(hover:hover)').matches)set(k)});p.addEventListener('click',()=>set(k));p.addEventListener('focus',()=>set(k));
+p.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();ps[(k+1)%n].focus()}else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();ps[(k-1+n)%n].focus()}})});set(0)})();
+(()=>{const tc=d.querySelector('.tc'),bd=tc.querySelector('.tc-body'),sh=tc.querySelector('.tc-shadow'),cp=tc.querySelector('.tc-cap'),rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const A=rm?4:12,SC=1.05,cl=(v,a,b)=>Math.min(b,Math.max(a,v)),S={rx:0,vrx:0,ry:0,vry:0,ty:0,vty:0,lift:0,vlift:0,shown:0,vshown:0,tip:0,vtip:0},P={nx:0,ny:0,x:0,y:0,in:false,mouse:true,vx:0,last:0};
+let raf=0,last=0,t=Math.random()*10,vis=true,pr=false,cx=0,cy=0;
+const stp=(k,tg,w,z,dt)=>{const v='v'+k,m=Math.max(1,Math.ceil(dt*240)),h=dt/m;for(let i=0;i<m;i++){S[v]+=(w*w*(tg-S[k])-2*z*w*S[v])*h;S[k]+=S[v]*h}const ok=Math.abs(tg-S[k])<.001&&Math.abs(S[v])<.01;if(ok){S[k]=tg;S[v]=0}return !ok};
+const wk=()=>{if(!raf&&vis){last=performance.now();raf=requestAnimationFrame(fr)}};
+const fr=now=>{raf=0;const dt=cl((now-last)/1000||0,0,.05);last=now;t+=dt;let busy=false;
+const hov=P.in&&P.mouse,tch=pr&&!P.mouse,fol=hov||tch;let ix=0,iy=0;
+if(fol){ix=P.nx;iy=P.ny}else if(!rm&&vis){ix=.32*Math.sin(t*.62)+.12*Math.sin(t*1.31+.7);iy=.26*Math.sin(t*.83+1.9)+.1*Math.sin(t*1.57);busy=true}
+const om=20*Math.pow(.2,.6),z=1-.18;
+busy=stp('rx',-iy*A,om,z,dt)||busy;busy=stp('ry',ix*A,om,z,dt)||busy;
+busy=stp('ty',(!fol&&!rm)?-4*Math.sin(t*.9):0,om*.8,.9,dt)||busy;busy=stp('lift',fol?1:0,om,.85,dt)||busy;
+const sc=1+(SC-1)*S.lift,rdx=S.rx*Math.PI/180,rdy=S.ry*Math.PI/180;
+bd.style.transform=`translate3d(0,${S.ty.toFixed(2)}px,0) rotateX(${S.rx.toFixed(3)}deg) rotateY(${S.ry.toFixed(3)}deg) scale(${sc.toFixed(4)})`;
+bd.style.setProperty('--px',Math.sin(rdy).toFixed(4));bd.style.setProperty('--py',(-Math.sin(rdx)).toFixed(4));
+bd.style.setProperty('--gx',(50+S.ry/A*46).toFixed(2)+'%');bd.style.setProperty('--gy',(50-S.rx/A*46).toFixed(2)+'%');
+bd.style.setProperty('--gl',(.7*Math.max(S.lift,Math.min(1,Math.hypot(S.rx,S.ry)/A))).toFixed(3));
+sh.style.transform=`translate3d(${(-Math.sin(rdy)*22).toFixed(2)}px,${(12+16*S.lift+Math.sin(rdx)*18-S.ty*.6).toFixed(2)}px,0) scale(${(sc*(.86+.04*S.lift)).toFixed(4)})`;sh.style.opacity=(.5*(.6+.4*S.lift)).toFixed(3);
+busy=stp('shown',hov?1:0,16,1,dt)||busy;cx+=(P.x-cx)*(1-Math.exp(-dt/.035));cy+=(P.y-cy)*(1-Math.exp(-dt/.035));
+if(Math.abs(P.x-cx)+Math.abs(P.y-cy)>.2)busy=true;P.vx*=Math.exp(-dt/.08);busy=stp('tip',rm?0:cl(-P.vx*.012,-14,14),18,.62,dt)||busy;
+cp.style.transform=`translate3d(${cx.toFixed(1)}px,${cy.toFixed(1)}px,0) rotate(${S.tip.toFixed(2)}deg)`;cp.style.opacity=Math.max(0,S.shown).toFixed(3);
+if(busy&&vis)raf=requestAnimationFrame(fr)};
+const loc=e=>{const r=tc.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top,w:Math.max(1,r.width),h:Math.max(1,r.height)}};
+const trk=e=>{const s=loc(e),now=performance.now(),el=Math.max(8,now-(P.last||now-16))/1000;P.vx+=((s.x-P.x)/el-P.vx)*.5;P.last=now;P.x=s.x;P.y=s.y;P.nx=cl((s.x-s.w/2)/(s.w/2),-1,1);P.ny=cl((s.y-s.h/2)/(s.h/2),-1,1)};
+const ms=e=>e.pointerType==='mouse'||e.pointerType==='pen';
+tc.addEventListener('pointerenter',e=>{P.in=true;P.mouse=ms(e);const s=loc(e);P.x=cx=s.x;P.y=cy=s.y;P.vx=0;trk(e);wk()});
+tc.addEventListener('pointermove',e=>{P.mouse=ms(e);trk(e);wk()});
+tc.addEventListener('pointerleave',()=>{P.in=false;P.vx=0;wk()});
+tc.addEventListener('pointerdown',e=>{pr=true;P.mouse=ms(e);if(!P.mouse){P.in=true;trk(e)}wk()});
+const upd=e=>{if(!pr)return;pr=false;if(!ms(e))P.in=false;wk()};addEventListener('pointerup',upd);addEventListener('pointercancel',upd);
+new IntersectionObserver(([e])=>{vis=e.isIntersecting;wk()}).observe(tc);wk()})();
 
 pos();

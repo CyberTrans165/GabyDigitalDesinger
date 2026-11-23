@@ -1,6 +1,6 @@
 # Gabrielly | Digital Design
 
-Landing page em HTML, CSS e JavaScript puros (sem build): hero com foto, Scroll Expand, soluções, diferenciais, portfólio SwipeCard com Chroma Grid, fundo líquido (WebGL) e contato pelo WhatsApp.
+Landing page em HTML, CSS e JavaScript puros (sem build): hero com foto em Tilted Card, Tech Text, soluções em Accordion Gallery, diferenciais, portfólio SwipeCard com Chroma Grid, fundo líquido (WebGL) e contato pelo WhatsApp.
 
 ## Estrutura
 
@@ -8,7 +8,7 @@ Landing page em HTML, CSS e JavaScript puros (sem build): hero com foto, Scroll 
 index.html          página
 css/style.css       estilos
 js/main.js          animações e interações
-assets/img/         imagens (perfil, scroll expand e conceitos do portfólio)
+assets/img/         foto de perfil e conceitos do portfólio
 assets/fonts/       fonte Circuit Forem
 ```
 
@@ -24,7 +24,8 @@ assets/fonts/       fonte Circuit Forem
 - **WhatsApp:** o número está em `js/main.js` (constante `wa`) e nos links `https://wa.me/...` do `index.html`.
 - **E-mail:** procure `gabrielygamachagas@gmail.com` no `index.html`.
 - **Instagram:** há um comentário no rodapé do `index.html` indicando onde colocar o link.
-- **Portfólio:** as imagens dos cards são conceitos demonstrativos; troque os arquivos em `assets/img/` e os textos no `index.html`.
+- **Portfólio:** os três cards são conceitos demonstrativos; troque os arquivos em `assets/img/` e os textos no `index.html`.
+- **Soluções:** os quatro painéis do acordeão estão no `index.html` (classe `ag`).
 
 ## Aviso sobre a fonte
 
